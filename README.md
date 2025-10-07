@@ -125,6 +125,12 @@ kubectl apply -f k8s/client/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+## Author
+
+**Built with ❤️ by [Prashant Ambati](https://github.com/Prashant-ambati)**
+
+*Passionate about privacy-preserving machine learning and distributed systems. This project represents a comprehensive implementation of federated learning principles with production-grade engineering practices.*
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
