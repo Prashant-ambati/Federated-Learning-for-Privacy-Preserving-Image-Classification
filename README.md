@@ -2,6 +2,10 @@
 
 A production-grade distributed federated learning framework that enables privacy-preserving image classification across multiple clients without sharing raw data.
 
+## 🌐 [**View Live Demo & Documentation Website**](https://prashant-ambati.github.io/Federated-Learning-for-Privacy-Preserving-Image-Classification/)
+
+> **Interactive showcase with architecture diagrams, performance benchmarks, and deployment guides**
+
 ## Overview
 
 This system implements a coordinator-client architecture where clients train CNN models locally on their private data and only share model updates (not raw data) with a central coordinator. The coordinator aggregates these updates using the FedAvg algorithm and distributes the improved global model back to clients.
@@ -31,6 +35,8 @@ This system implements a coordinator-client architecture where clients train CNN
 - **PostgreSQL**: Persistent storage for training metadata
 
 ## Quick Start
+
+> 📖 **For detailed setup guides and interactive documentation, visit our [**Project Website**](https://prashant-ambati.github.io/Federated-Learning-for-Privacy-Preserving-Image-Classification/)**
 
 ### Prerequisites
 
