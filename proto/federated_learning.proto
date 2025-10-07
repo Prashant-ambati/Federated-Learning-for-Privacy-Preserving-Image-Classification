@@ -1,0 +1,264 @@
+syntax = "proto3";
+
+package federated_learning;
+
+// Main federated learning service
+service FederatedLearning {
+    // Client registration and management
+    rpc RegisterClient(ClientRegistration) returns (RegistrationResponse);
+    rpc UpdateClientCapabilities(ClientCapabilities) returns (UpdateResponse);
+    rpc GetTrainingStatus(StatusRequest) returns (TrainingStatus);
+    
+    // Model distribution and updates
+    rpc GetGlobalModel(ModelRequest) returns (ModelResponse);
+    rpc SubmitModelUpdate(ModelUpdate) returns (UpdateAck);
+    
+    // Training round management
+    rpc JoinTrainingRound(RoundJoinRequest) returns (RoundJoinResponse);
+    rpc GetRoundConfig(RoundConfigRequest) returns (RoundConfig);
+    
+    // Health and monitoring
+    rpc HealthCheck(HealthRequest) returns (HealthResponse);
+    rpc GetMetrics(MetricsRequest) returns (MetricsResponse);
+}
+
+// Client registration messages
+message ClientRegistration {
+    string client_id = 1;
+    ClientCapabilities capabilities = 2;
+    string client_version = 3;
+    map<string, string> metadata = 4;
+}
+
+message RegistrationResponse {
+    bool success = 1;
+    string message = 2;
+    string assigned_client_id = 3;
+    int32 global_model_version = 4;
+    ServerInfo server_info = 5;
+}
+
+message ServerInfo {
+    string server_version = 1;
+    repeated string supported_models = 2;
+    repeated string supported_datasets = 3;
+    PrivacyConfig default_privacy_config = 4;
+}
+
+// Client capabilities
+message ClientCapabilities {
+    ComputePowerLevel compute_power = 1;
+    int32 network_bandwidth_mbps = 2;
+    int32 available_samples = 3;
+    repeated string supported_models = 4;
+    PrivacyConfig privacy_requirements = 5;
+    DeviceInfo device_info = 6;
+}
+
+message DeviceInfo {
+    string device_type = 1;  // "cpu", "cuda", "mps"
+    int32 memory_gb = 2;
+    int32 cpu_cores = 3;
+    bool has_gpu = 4;
+    string gpu_model = 5;
+}
+
+enum ComputePowerLevel {
+    COMPUTE_POWER_UNKNOWN = 0;
+    COMPUTE_POWER_LOW = 1;
+    COMPUTE_POWER_MEDIUM = 2;
+    COMPUTE_POWER_HIGH = 3;
+}
+
+// Privacy configuration
+message PrivacyConfig {
+    double epsilon = 1;
+    double delta = 2;
+    double max_grad_norm = 3;
+    double noise_multiplier = 4;
+}
+
+// Model-related messages
+message ModelRequest {
+    string client_id = 1;
+    int32 round_number = 2;
+    string model_type = 3;
+}
+
+message ModelResponse {
+    bool success = 1;
+    string message = 2;
+    bytes model_weights = 3;  // Serialized model weights
+    int32 round_number = 4;
+    ModelMetadata metadata = 5;
+}
+
+message ModelMetadata {
+    string model_type = 1;
+    int32 parameter_count = 2;
+    int64 model_size_bytes = 3;
+    string compression_algorithm = 4;
+    double compression_ratio = 5;
+    map<string, double> accuracy_metrics = 6;
+}
+
+// Model update messages
+message ModelUpdate {
+    string client_id = 1;
+    int32 round_number = 2;
+    bytes model_weights = 3;  // Compressed and serialized weights
+    int32 num_samples = 4;
+    double training_loss = 5;
+    double privacy_budget_used = 6;
+    double compression_ratio = 7;
+    int64 timestamp = 8;  // Unix timestamp
+    TrainingMetrics training_metrics = 9;
+    UpdateMetadata metadata = 10;
+}
+
+message TrainingMetrics {
+    double loss = 1;
+    double accuracy = 2;
+    int32 epochs_completed = 3;
+    double training_time_seconds = 4;
+    int32 samples_processed = 5;
+    map<string, double> additional_metrics = 6;
+}
+
+message UpdateMetadata {
+    string compression_algorithm = 1;
+    int64 original_size_bytes = 2;
+    int64 compressed_size_bytes = 3;
+    double privacy_epsilon_used = 4;
+    double privacy_delta_used = 5;
+    string client_version = 6;
+}
+
+message UpdateAck {
+    bool success = 1;
+    string message = 2;
+    int64 next_round_eta = 3;  // Unix timestamp
+    RoundStatus round_status = 4;
+}
+
+enum RoundStatus {
+    ROUND_STATUS_UNKNOWN = 0;
+    ROUND_STATUS_WAITING = 1;
+    ROUND_STATUS_IN_PROGRESS = 2;
+    ROUND_STATUS_AGGREGATING = 3;
+    ROUND_STATUS_COMPLETED = 4;
+}
+
+// Training round messages
+message RoundJoinRequest {
+    string client_id = 1;
+    int32 requested_round = 2;
+}
+
+message RoundJoinResponse {
+    bool success = 1;
+    string message = 2;
+    int32 assigned_round = 3;
+    RoundConfig round_config = 4;
+}
+
+message RoundConfigRequest {
+    string client_id = 1;
+    int32 round_number = 2;
+}
+
+message RoundConfig {
+    int32 round_number = 1;
+    int32 min_clients = 2;
+    int32 max_clients = 3;
+    int32 local_epochs = 4;
+    int32 batch_size = 5;
+    double learning_rate = 6;
+    int32 timeout_seconds = 7;
+    string optimizer_type = 8;
+    PrivacyConfig privacy_config = 9;
+    map<string, string> additional_params = 10;
+}
+
+// Status and monitoring messages
+message StatusRequest {
+    string client_id = 1;
+}
+
+message TrainingStatus {
+    int32 current_round = 1;
+    int32 active_clients = 2;
+    double round_progress = 3;  // 0.0 to 1.0
+    double global_accuracy = 4;
+    double convergence_score = 5;
+    int64 estimated_completion = 6;  // Unix timestamp
+    RoundStatus round_status = 7;
+    repeated ClientStatus client_statuses = 8;
+}
+
+message ClientStatus {
+    string client_id = 1;
+    ClientState state = 2;
+    double last_accuracy = 3;
+    double last_loss = 4;
+    int64 last_update_time = 5;
+    int32 rounds_participated = 6;
+}
+
+enum ClientState {
+    CLIENT_STATE_UNKNOWN = 0;
+    CLIENT_STATE_REGISTERED = 1;
+    CLIENT_STATE_TRAINING = 2;
+    CLIENT_STATE_UPLOADING = 3;
+    CLIENT_STATE_WAITING = 4;
+    CLIENT_STATE_DISCONNECTED = 5;
+}
+
+// Health check messages
+message HealthRequest {
+    string service_name = 1;
+}
+
+message HealthResponse {
+    bool healthy = 1;
+    string status = 2;
+    map<string, string> details = 3;
+    int64 timestamp = 4;
+}
+
+// Metrics messages
+message MetricsRequest {
+    string client_id = 1;
+    repeated string metric_names = 2;
+    int64 start_time = 3;
+    int64 end_time = 4;
+}
+
+message MetricsResponse {
+    bool success = 1;
+    map<string, MetricData> metrics = 2;
+}
+
+message MetricData {
+    string metric_name = 1;
+    repeated MetricPoint points = 2;
+}
+
+message MetricPoint {
+    int64 timestamp = 1;
+    double value = 2;
+    map<string, string> labels = 3;
+}
+
+// Generic response messages
+message UpdateResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+// Error handling
+message ErrorDetails {
+    string error_code = 1;
+    string error_message = 2;
+    map<string, string> context = 3;
+}

@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: federated_learning
+      POSTGRES_USER: federated
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U federated"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  coordinator:
+    build:
+      context: .
+      dockerfile: docker/Coordinator.dockerfile
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+      - "9090:9090"
+    environment:
+      - DATABASE_URL=postgresql://federated:password@postgres:5432/federated_learning
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  client:
+    build:
+      context: .
+      dockerfile: docker/Client.dockerfile
+    environment:
+      - COORDINATOR_HOST=coordinator
+      - COORDINATOR_PORT=50051
+      - CLIENT_ID=client-docker-001
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+    depends_on:
+      coordinator:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+
+volumes:
+  postgres_data:
+  redis_data:

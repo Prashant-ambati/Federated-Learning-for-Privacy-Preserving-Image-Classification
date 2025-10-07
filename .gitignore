@@ -1,0 +1,98 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyTorch
+*.pth
+*.pt
+
+# Data and models
+data/
+models/
+checkpoints/
+*.pkl
+*.pickle
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.dockerignore
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Database
+*.db
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Configuration overrides
+config/local_*.yaml
+config/production_*.yaml
+
+# AWS
+.aws/
+
+# Kubernetes
+*.kubeconfig

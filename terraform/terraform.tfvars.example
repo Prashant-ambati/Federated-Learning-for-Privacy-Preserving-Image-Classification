@@ -1,0 +1,129 @@
+# Example Terraform variables file for federated learning deployment
+# Copy this file to terraform.tfvars and customize the values
+
+# Basic Configuration
+aws_region   = "us-west-2"
+environment  = "dev"
+project_name = "federated-learning"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+public_subnet_cidrs = [
+  "10.0.1.0/24",
+  "10.0.2.0/24"
+]
+private_subnet_cidrs = [
+  "10.0.10.0/24",
+  "10.0.20.0/24"
+]
+enable_nat_gateway = true
+
+# Security Configuration
+allowed_cidr_blocks = [
+  "0.0.0.0/0"  # Restrict this in production
+]
+ssh_allowed_cidr_blocks = [
+  "10.0.0.0/8",    # VPC only
+  "172.16.0.0/12", # Private networks
+  "192.168.0.0/16" # Private networks
+]
+key_pair_name = "my-key-pair"  # Replace with your key pair name
+
+# Coordinator Configuration
+coordinator_instance_type    = "t3.medium"
+coordinator_min_size        = 1
+coordinator_max_size        = 3
+coordinator_desired_capacity = 1
+
+# Client Configuration
+client_instance_type    = "t3.small"
+client_min_size        = 2
+client_max_size        = 20
+client_desired_capacity = 5
+
+# Database Configuration
+enable_rds                   = true
+db_instance_class           = "db.t3.micro"
+db_engine_version          = "13.7"
+db_allocated_storage       = 20
+db_max_allocated_storage   = 100
+db_name                    = "federated_learning"
+db_username                = "federated_user"
+db_password                = "SecurePassword123!"  # Change this!
+db_backup_retention_period = 7
+db_backup_window          = "03:00-04:00"
+db_maintenance_window     = "sun:04:00-sun:05:00"
+db_skip_final_snapshot    = true
+
+# Monitoring and Logging
+log_retention_days         = 14
+enable_deletion_protection = false
+
+# Auto Scaling Configuration
+scale_up_threshold   = 70
+scale_down_threshold = 20
+scale_up_cooldown   = 300
+scale_down_cooldown = 300
+
+# Application Configuration
+federated_learning_config = {
+  min_clients      = 3
+  max_clients      = 50
+  local_epochs     = 5
+  batch_size       = 32
+  learning_rate    = 0.001
+  total_rounds     = 100
+  round_timeout    = 300
+  model_type       = "simple_cnn"
+  privacy_epsilon  = 1.0
+  privacy_delta    = 1e-5
+}
+
+# Notification Configuration
+notification_email      = "admin@example.com"
+enable_sns_notifications = false
+
+# Cost Optimization
+enable_spot_instances = false
+spot_instance_types = [
+  "t3.small",
+  "t3.medium",
+  "t3a.small",
+  "t3a.medium"
+]
+
+# Backup and Recovery
+enable_automated_backups = true
+backup_schedule         = "cron(0 2 * * ? *)"  # Daily at 2 AM
+
+# Performance Configuration
+enable_enhanced_monitoring = true
+monitoring_interval       = 60
+
+# Network Configuration
+enable_vpc_flow_logs     = false
+flow_log_retention_days = 14
+
+# Disaster Recovery
+enable_multi_az      = false
+cross_region_backup = false
+backup_region       = "us-east-1"
+
+# Development and Testing
+enable_debug_mode = false
+enable_test_data  = true
+
+# Compliance and Security
+enable_encryption_at_rest    = true
+enable_encryption_in_transit = true
+compliance_mode             = "none"
+
+# Resource Tagging
+additional_tags = {
+  Owner       = "ML Team"
+  CostCenter  = "Research"
+  Project     = "Federated Learning"
+  Environment = "Development"
+}
+cost_center = "Research"
+owner      = "ML Team"
